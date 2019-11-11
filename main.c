@@ -3,11 +3,14 @@
 #include <sys/stat.h>
 #include "json.h"
 
-double coor_x[100][4]={0},coor_x_old[100][4]={0};
-double coor_y[100][4]={0},coor_y_old[100][4]={0};
+double coor_x[100][4]={0}, coor_y[100][4]={0};
+//implement if needed
+//double coor_x_old[100][4]={0}, coor_y_old[100][4]={0};
 int num = 0;
 
-/* gcc a.c json.c -lm */
+/* 
+gcc main.c json.c -lm
+ */
 static void print_depth_shift(int depth)
 {
         int j;
@@ -73,16 +76,28 @@ static void process_value(json_value* value, int depth, int x)
                         break;
                 case json_double:
                         //printf("double: %f\n", value->u.dbl);
-			if(x/3==2 || x/3==3 || x/3==5 || x/3==6){
-				switch(x/3){
-					case 2:spit(value, x, 0);break;
-					case 3:spit(value, x, 1);break;
-					case 5:spit(value, x, 2);break;
-					case 6:spit(value, x, 3);break;
-					default:break;
-				}
-			}
-                        break;
+					if(x/3==2 || x/3==3 || x/3==5 || x/3==6){
+						switch(x/3){
+							case 2:spit(value, x, 0);break;
+							case 3:spit(value, x, 1);break;
+							case 5:spit(value, x, 2);break;
+							case 6:spit(value, x, 3);break;
+							default:break;
+						}
+					}
+					if(x/3==6 && x%3==2){
+						//decrease for current processing
+						num--;
+						printf("hooman[%d], y2=%f, y3=%f, y5=%f, y6=%f\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
+						//if any points == 0 break;
+						for(int i=0;i<4;i++)
+							if(coor_y[num][i]==0)printf("ASDF: %d\n",i);
+						
+						
+						//increase for return to previous value for further processing
+						num++;
+					}
+					break;
                 case json_string:
 //                        printf("string: %s\n", value->u.string.ptr);
                         break;
@@ -97,22 +112,24 @@ char* body_parts(int x){
 		case 3:return "RElbow";
 		case 5:return "LShoulder";
 		case 6:return "LElbow";
-		default:return "Invalid";
+		default:return "Unimplemented";
 	}
 }
 static void coorx(json_value* value, int x, int y){
 	char* part_name=body_parts(x);
-	if(coor_x[num][y]!=0)coor_x_old[num][y]=coor_x[num][y];
+	//doing YOLO
+	//if(coor_x[num][y]!=0)coor_x_old[num][y]=coor_x[num][y];
 	coor_x[num][y]=value->u.dbl;
 	//printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_x[num][y]);
-	printf("Person[%d] %s x=%f",num,part_name,coor_x[num][y]);
+	///printf("Person[%d] %s xcoor=%f, x=%d",num,part_name,coor_x[num][y],x);
 }
 static void coory(json_value* value, int x, int y){
 	//char* part_name=body_parts(x);
-        if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
-        coor_y[num][y]=value->u.dbl;
-        //printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
-	printf(" ,y=%f\n",coor_y[num][y]);
+	//YOLO
+    //if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
+    coor_y[num][y]=value->u.dbl;
+    //printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
+	///printf(", ycoor=%f, y=%d\n",coor_y[num][y],y);
 }
 
 static void spit(json_value* value, int x, int y){
