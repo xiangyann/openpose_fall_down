@@ -3,10 +3,12 @@
 #include <sys/stat.h>
 #include "json.h"
 
-double coor_x[100][4]={0}, coor_y[100][4]={0};
+double coor_x[100][4]={0}, coor_y[100][4]={0},y_val[4];
 //implement if needed
 //double coor_x_old[100][4]={0}, coor_y_old[100][4]={0};
-int num = 0;
+//4 num checks because who knows sometimes 6 will be absent
+int num[4] = {0}, num_old[4] = {0};
+int num_final = 0;
 
 /* 
 gcc main.c json.c -lm
@@ -53,7 +55,7 @@ static void process_array(json_value* value, int depth)
 
 static void process_value(json_value* value, int depth, int x)
 {
-        int j;
+    int j;
 	char a[100];
         if (value == NULL) {
                 return;
@@ -78,24 +80,41 @@ static void process_value(json_value* value, int depth, int x)
                         //printf("double: %f\n", value->u.dbl);
 					if(x/3==2 || x/3==3 || x/3==5 || x/3==6){
 						switch(x/3){
-							case 2:spit(value, x, 0);break;
-							case 3:spit(value, x, 1);break;
-							case 5:spit(value, x, 2);break;
-							case 6:spit(value, x, 3);break;
+							case 2:spit(value, x, 0);num[0]++;break;
+							case 3:spit(value, x, 1);num[1]++;break;
+							case 5:spit(value, x, 2);num[2]++;break;
+							case 6:spit(value, x, 3);num[3]++;break;
 							default:break;
 						}
 					}
-					if(x/3==6 && x%3==2){
+					if(x%3==2){
+						printf("\nCreeper! ");
 						//decrease for current processing
-						num--;
-						printf("hooman[%d], y2=%f, y3=%f, y5=%f, y6=%f\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
-						//if any points == 0 break;
 						for(int i=0;i<4;i++)
-							if(coor_y[num][i]==0)printf("ASDF: %d\n",i);
+						if(num_final < num[i])num_final = num[i];
+						if(!(num[0]==num_final||num[1]==num_final||num[2]==num_final||num[3]==num_final))break;
+						printf("Aww man!\n");
+						int empty_check=0,left=0,right=0;
+						printf("hooman[%d;%d,%d,%d,%d], y2=%f, y3=%f, y5=%f, y6=%f\n",num_final,num[0],num[1],num[2],num[3],coor_y[num[0]][0],coor_y[num[1]][1],coor_y[num[2]][2],coor_y[num[3]][3]);
 						
-						
+						for(int i=0;i<4;i++){
+							y_val[i]=coor_y[num[i]][i];
+						}
+						//if any UNCONNECTED points == 0 break;
+						if(y_val[0]==0||y_val[1]==0)left=1;
+						if(y_val[2]==0||y_val[3]==0)right=1;
+						if(!left){
+							if(y_val[0]>y_val[1])printf("LEFT HAND UP! ");
+						}
+						else
+							printf("LEFT HAND NOT UP! ");
+						if(!right){
+							if(y_val[2]>y_val[3])printf("RIGHT HAND UP!");
+						}
+						else
+							printf("RIGHT HAND NOT UP!");
 						//increase for return to previous value for further processing
-						num++;
+						*num_old = *num;
 					}
 					break;
                 case json_string:
@@ -117,29 +136,58 @@ char* body_parts(int x){
 }
 static void coorx(json_value* value, int x, int y){
 	char* part_name=body_parts(x);
+	int z;
 	//doing YOLO
 	//if(coor_x[num][y]!=0)coor_x_old[num][y]=coor_x[num][y];
-	coor_x[num][y]=value->u.dbl;
+	switch(x/3){
+		case 2:z=0;break;
+		case 3:z=1;break;
+		case 5:z=2;break;
+		case 6:z=3;break;
+		default:z=99;break;
+	}
+	coor_x[num[z]][y]=value->u.dbl;
 	//printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_x[num][y]);
-	///printf("Person[%d] %s xcoor=%f, x=%d",num,part_name,coor_x[num][y],x);
+	printf("Person[%d] %s xcoor=%f, x=%d",num,part_name,coor_x[num][y],x);
 }
 static void coory(json_value* value, int x, int y){
 	//char* part_name=body_parts(x);
+	int z;
 	//YOLO
+	switch(x/3){
+		case 2:z=0;break;
+		case 3:z=1;break;
+		case 5:z=2;break;
+		case 6:z=3;break;
+		default:z=99;break;
+	}
     //if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
-    coor_y[num][y]=value->u.dbl;
+    coor_y[num[z]][y]=value->u.dbl;
     //printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
 	///printf(", ycoor=%f, y=%d\n",coor_y[num][y],y);
 }
 
 static void spit(json_value* value, int x, int y){
+	printf("x%%3=%d\n",x%3);
 	switch(x%3){
 		case 0:coorx(value, x, y);break;
 		case 1:coory(value, x, y);break;
 		case 2:
-		       //confidence, used as counter
-		       //printf("x: %d, This is c: %f!\n",x/3,value->u.dbl);
-		       if(y==3)num++;break;
+		        //confidence, used as counter
+		        //printf("x: %d, This is c: %f!\n",x/3,value->u.dbl);
+		        if(y==3){
+					
+					int z;
+					switch(x/3){
+						case 2:z=0;break;
+						case 3:z=1;break;
+						case 5:z=2;break;
+						case 6:z=3;break;
+						default:z=99;break;
+					};
+					num[z]++;
+				}
+					break;
 		default:break;
 	}
 }
