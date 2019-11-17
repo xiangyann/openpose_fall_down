@@ -6,7 +6,7 @@
 double coor_x[100][4]={0}, coor_y[100][4]={0};
 //implement if needed
 //double coor_x_old[100][4]={0}, coor_y_old[100][4]={0};
-int num = 0;
+int num = 0, num_old = 0;
 
 /* 
 gcc main.c json.c -lm
@@ -76,6 +76,8 @@ static void process_value(json_value* value, int depth, int x)
                         break;
                 case json_double:
                         //printf("double: %f\n", value->u.dbl);
+					num_old = num;
+					if(x==0)num++;
 					if(x/3==2 || x/3==3 || x/3==5 || x/3==6){
 						switch(x/3){
 							case 2:spit(value, x, 0);break;
@@ -85,7 +87,7 @@ static void process_value(json_value* value, int depth, int x)
 							default:break;
 						}
 					}
-					if(x/3==6 && x%3==2){
+					if(num > num_old){
 						//decrease for current processing
 						num--;
 						printf("hooman[%d], y2=%f, y3=%f, y5=%f, y6=%f\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
@@ -139,7 +141,9 @@ static void spit(json_value* value, int x, int y){
 		case 2:
 		       //confidence, used as counter
 		       //printf("x: %d, This is c: %f!\n",x/3,value->u.dbl);
-		       if(y==3)num++;break;
+		       //if(y==3)num++;
+			   printf("Y: %d\n",y);
+			   break;
 		default:break;
 	}
 }
