@@ -1,15 +1,15 @@
 JSON parser from: https://github.com/udp/json-parser
 openpose from: https://github.com/CMU-Perceptual-Computing-Lab/openpose
 
-Building
+編譯/Building
 -
 `gcc main.c json.c -lm`
 
-Usage
+使用方法/Usage
 -
 `./a.out <filename>`
 
-TODO
+待做事項/TODO
 -
 1. 讀檔案
 2. 連續讀檔案後刪除

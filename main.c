@@ -124,8 +124,10 @@ static void coory(json_value* value, int x, int y){
 	//YOLO
     //if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
     coor_y[num][y]=value->u.dbl;
-	printf("hooman[%d],\ny2=%f, y3=%f, y5=%f, y6=%f\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
-	printf("x2=%f, x3=%f, x5=%f, x6=%f\n",coor_x[num][0],coor_x[num][1],coor_x[num][2],coor_x[num][3]);
+	printf("==DEBUG== Human[%d], y2=%f, y3=%f, y5=%f, y6=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
+	//printf("x2=%f, x3=%f, x5=%f, x6=%f\n",coor_x[num][0],coor_x[num][1],coor_x[num][2],coor_x[num][3]);
+	if(coor_y[num][0]>coor_y[num][1])printf("人類 %d 舉起了他的右手！\n", num);
+	if(coor_y[num][2]>coor_y[num][3])printf("人類 %d 舉起了他的左手！\n", num);
     //printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
 	//printf(", ycoor=%f, y=%d\n",coor_y[num][y],y);
 }
@@ -138,7 +140,7 @@ static void spit(json_value* value, int x, int y){
 		       //confidence, used as counter
 		       //printf("x: %d, This is c: %f!\n",x/3,value->u.dbl);
 		       //if(y==3)num++;
-			   printf("Y: %d\n",y);
+			   //printf("Y: %d\n",y);
 			   break;
 		default:break;
 	}
@@ -180,16 +182,16 @@ int main(int argc, char** argv)
                 return 1;
         }
         if ( fread(file_contents, file_size, 1, fp) != 1 ) {
-                fprintf(stderr, "Unable t read content of %s\n", filename);
+                fprintf(stderr, "Unable to read content of %s\n", filename);
                 fclose(fp);
                 free(file_contents);
                 return 1;
         }
         fclose(fp);
 
-        printf("%s\n", file_contents);
+        //printf("%s\n", file_contents);
 
-        printf("--------------------------------\n\n");
+        //printf("--------------------------------\n\n");
 
         json = (json_char*)file_contents;
 
