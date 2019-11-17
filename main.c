@@ -3,10 +3,12 @@
 #include <sys/stat.h>
 #include "json.h"
 
-double coor_x[100][4]={0}, coor_y[100][4]={0};
+//dirty hacks for higher than implementation
+double coor_x[100][4]={[0 ... 99][0 ... 3] = 16384}, coor_y[100][4]={[0 ... 99][0 ... 3] = 16384};
 //implement if needed
 //double coor_x_old[100][4]={0}, coor_y_old[100][4]={0};
-int num = 0, num_old = 0;
+int num = -1;
+int num_old = 0;
 
 /* 
 gcc main.c json.c -lm
@@ -76,8 +78,8 @@ static void process_value(json_value* value, int depth, int x)
                         break;
                 case json_double:
                         //printf("double: %f\n", value->u.dbl);
-					num_old = num;
 					if(x==0)num++;
+					//printf("%d",x);
 					if(x/3==2 || x/3==3 || x/3==5 || x/3==6){
 						switch(x/3){
 							case 2:spit(value, x, 0);break;
@@ -87,18 +89,10 @@ static void process_value(json_value* value, int depth, int x)
 							default:break;
 						}
 					}
-					if(num > num_old){
-						//decrease for current processing
-						num--;
-						printf("hooman[%d], y2=%f, y3=%f, y5=%f, y6=%f\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
-						//if any points == 0 break;
-						for(int i=0;i<4;i++)
-							if(coor_y[num][i]==0)printf("ASDF: %d\n",i);
-						
-						
-						//increase for return to previous value for further processing
-						num++;
-					}
+					//if(num > num_old){
+						//printf("hooman[%d], y2=%f, y3=%f, y5=%f, y6=%f\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
+						//num_old++;
+					//}
 					break;
                 case json_string:
 //                        printf("string: %s\n", value->u.string.ptr);
@@ -130,8 +124,10 @@ static void coory(json_value* value, int x, int y){
 	//YOLO
     //if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
     coor_y[num][y]=value->u.dbl;
+	printf("hooman[%d],\ny2=%f, y3=%f, y5=%f, y6=%f\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
+	printf("x2=%f, x3=%f, x5=%f, x6=%f\n",coor_x[num][0],coor_x[num][1],coor_x[num][2],coor_x[num][3]);
     //printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
-	///printf(", ycoor=%f, y=%d\n",coor_y[num][y],y);
+	//printf(", ycoor=%f, y=%d\n",coor_y[num][y],y);
 }
 
 static void spit(json_value* value, int x, int y){
