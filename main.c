@@ -5,6 +5,7 @@
 
 //dirty hacks for higher than implementation
 double coor_x[100][4]={[0 ... 99][0 ... 3] = 16384}, coor_y[100][4]={[0 ... 99][0 ... 3] = 16384};
+int lefthand[100]={[0 ... 99] = 0},righthand[100]={[0 ... 99] = 0};
 //implement if needed
 //double coor_x_old[100][4]={0}, coor_y_old[100][4]={0};
 int num = -1;
@@ -20,6 +21,7 @@ static void print_depth_shift(int depth)
 		//printf(" ");
         }
 }
+static void output();
 char* body_parts(int x);
 static void coorx(json_value* value, int x, int y);
 static void coory(json_value* value, int x, int y);
@@ -126,10 +128,17 @@ static void coory(json_value* value, int x, int y){
     coor_y[num][y]=value->u.dbl;
 	printf("==DEBUG== Human[%d], y2=%f, y3=%f, y5=%f, y6=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
 	//printf("x2=%f, x3=%f, x5=%f, x6=%f\n",coor_x[num][0],coor_x[num][1],coor_x[num][2],coor_x[num][3]);
-	if(coor_y[num][0]>coor_y[num][1])printf("人類 %d 舉起了他的右手！\n", num);
-	if(coor_y[num][2]>coor_y[num][3])printf("人類 %d 舉起了他的左手！\n", num);
+	(coor_y[num][0]>coor_y[num][1])?(righthand[num]=1):(righthand[num]=0);
+	(coor_y[num][2]>coor_y[num][3])?(lefthand[num]=1):(lefthand[num]=0);
+	output();
     //printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
 	//printf(", ycoor=%f, y=%d\n",coor_y[num][y],y);
+}
+
+static void output(){
+	//DO SOMETHING HERE!!!!!!
+	if(lefthand[num])printf("人類 %d 舉起了他的右手！\n", num);
+	if(righthand[num])printf("人類 %d 舉起了他的左手！\n", num);
 }
 
 static void spit(json_value* value, int x, int y){
