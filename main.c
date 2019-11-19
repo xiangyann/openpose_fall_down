@@ -1,15 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <string.h>
 #include "json.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
 //dirty hacks for higher than implementation
-double coor_x[100][4]={[0 ... 99][0 ... 3] = 16384}, coor_y[100][4]={[0 ... 99][0 ... 3] = 16384};
-int lefthand[100]={[0 ... 99] = 0},righthand[100]={[0 ... 99] = 0};
+double coor_x[100][4]={[0 ... 99][0 ... 3] = 16384}, coor_y[100][4]={[0 ... 99][0 ... 3] = 16384}, coor_int[100][4]={[0 ... 99][0 ... 3] = 16384};
+int lefthand[100]={[0 ... 99] = 0},righthand[100]={[0 ... 99] = 0}, hand_int[100]={[0 ... 99] = 0};
 //implement if needed
 //double coor_x_old[100][4]={0}, coor_y_old[100][4]={0};
 int num = -1;
 int num_old = 0;
+char defaultfilename[16] = "_keypoints.json";
+char prependfilename[6] = "json/";
+char filenamestring[13] = "000000000000";
+char filename[33] = "json/000000000000_keypoints.json";
 
 /* 
 gcc main.c json.c -lm
@@ -58,7 +69,7 @@ static void process_array(json_value* value, int depth)
 static void process_value(json_value* value, int depth, int x)
 {
         int j;
-	char a[100];
+		char a[100];
         if (value == NULL) {
                 return;
         }
@@ -126,7 +137,7 @@ static void coory(json_value* value, int x, int y){
 	//YOLO
     //if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
     coor_y[num][y]=value->u.dbl;
-	printf("==DEBUG== Human[%d], y2=%f, y3=%f, y5=%f, y6=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
+	//printf("==DEBUG== Human[%d], y2=%f, y3=%f, y5=%f, y6=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
 	//printf("x2=%f, x3=%f, x5=%f, x6=%f\n",coor_x[num][0],coor_x[num][1],coor_x[num][2],coor_x[num][3]);
 	(coor_y[num][0]>coor_y[num][1])?(righthand[num]=1):(righthand[num]=0);
 	(coor_y[num][2]>coor_y[num][3])?(lefthand[num]=1):(lefthand[num]=0);
@@ -156,65 +167,89 @@ static void spit(json_value* value, int x, int y){
 }
 
 
-int main(int argc, char** argv)
-{
-        char* filename;
-        FILE *fp;
-        struct stat filestatus;
-        int file_size;
-        char* file_contents;
-        json_char* json;
-        json_value* value;
+int main(int argc, char** argv){
+	FILE *fp;
+	struct stat filestatus;
+	int file_size;
+	long long int file_i = 0;
+	char* file_contents;
+	int pollingDelay = 100;
+	json_char* json;
+	json_value* value;
+	
+	for(file_i = 1;file_i < 999999999999; file_i++){
+		sprintf(filenamestring, "%012lld", file_i);
+		strcpy(filename, prependfilename);
+		strcat(filename, filenamestring);
+		strcat(filename, defaultfilename);
+		//if file not found
+		if ( stat(filename, &filestatus) != 0) {
+			printf("Filename: %s\n", filename);
+			file_i--;
+			#ifdef _WIN32
+			Sleep(pollingDelay);
+			#else
+			usleep(pollingDelay*1000);
+			#endif
+		}
+		else{
+			//if OOM
+			file_size = filestatus.st_size;
+			file_contents = (char*)malloc(filestatus.st_size);
+			if ( file_contents == NULL) {
+				fprintf(stderr, "Memory error: unable to allocate %d bytes\n", file_size);
+				return 1;
+			}
+			
+			//if no read permission
+			fp = fopen(filename, "rt");
+			if (fp == NULL) {
+				fprintf(stderr, "Unable to open %s\n", filename);
+				fclose(fp);
+				free(file_contents);
+				return 1;
+			}
+			//if unable to read for some reason
+			if ( fread(file_contents, file_size, 1, fp) != 1 ) {
+				fprintf(stderr, "Unable to read content of %s\n", filename);
+				fclose(fp);
+				free(file_contents);
+				return 1;
+			}
+			fclose(fp);
+			
+			printf("%s\n", file_contents);
+			
+			json = (json_char*)file_contents;
+			
+			value = json_parse(json,file_size);
+			
+			if (value == NULL) {
+				fprintf(stderr, "Unable to parse data\n");
+				free(file_contents);
+				exit(1);
+			}
+			
+			process_value(value, 0, 0);
+			
+			json_value_free(value);
+			free(file_contents);
+			for(int l=0; l<100; l++){
+				for(int n=0; n<3; n++){
+					coor_y[l][n] = coor_x[l][n] = 16384;
+				}
+				lefthand[l] = righthand[l] = 0;
+			}
+			num = -1;
+			num_old = 0;
+			
+			#ifdef _WIN32
+			Sleep(pollingDelay);
+			#else
+			usleep(pollingDelay*1000);
+			#endif
+		}
+	}
 
-        if (argc != 2) {
-                fprintf(stderr, "%s <file_json>\n", argv[0]);
-                return 1;
-        }
-        filename = argv[1];
-
-        if ( stat(filename, &filestatus) != 0) {
-                fprintf(stderr, "File %s not found\n", filename);
-                return 1;
-        }
-        file_size = filestatus.st_size;
-        file_contents = (char*)malloc(filestatus.st_size);
-        if ( file_contents == NULL) {
-                fprintf(stderr, "Memory error: unable to allocate %d bytes\n", file_size);
-                return 1;
-        }
-
-        fp = fopen(filename, "rt");
-        if (fp == NULL) {
-                fprintf(stderr, "Unable to open %s\n", filename);
-                fclose(fp);
-                free(file_contents);
-                return 1;
-        }
-        if ( fread(file_contents, file_size, 1, fp) != 1 ) {
-                fprintf(stderr, "Unable to read content of %s\n", filename);
-                fclose(fp);
-                free(file_contents);
-                return 1;
-        }
-        fclose(fp);
-
-        //printf("%s\n", file_contents);
-
-        //printf("--------------------------------\n\n");
-
-        json = (json_char*)file_contents;
-
-        value = json_parse(json,file_size);
-
-        if (value == NULL) {
-                fprintf(stderr, "Unable to parse data\n");
-                free(file_contents);
-                exit(1);
-        }
-
-        process_value(value, 0, 0);
-
-        json_value_free(value);
-        free(file_contents);
-        return 0;
+	return 0;
 }
