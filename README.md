@@ -11,9 +11,9 @@ openpose from: https://github.com/CMU-Perceptual-Computing-Lab/openpose
 
 待做事項/TODO
 -
-~~1. 讀檔案~~  \n
-~~2. 連續讀檔案後刪除~~  \n
-3. shell script 自動化  \n
-4. 判別不同姿勢  \n
-5. 連接功能  \n
+~~1. 讀檔案~~<br >
+~~2. 連續讀檔案後刪除~~<br >
+3. shell script 自動化<br >
+4. 判別不同姿勢<br >
+5. 連接功能<br >
 6. ?
