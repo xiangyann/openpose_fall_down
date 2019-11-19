@@ -18,9 +18,9 @@ int lefthand[100]={[0 ... 99] = 0},righthand[100]={[0 ... 99] = 0}, hand_int[100
 int num = -1;
 int num_old = 0;
 char defaultfilename[16] = "_keypoints.json";
-char prependfilename[6] = "json/";
+char prependfilename[37] = "/home/e516/openpose_raise_hand/json/";
 char filenamestring[13] = "000000000000";
-char filename[33] = "json/000000000000_keypoints.json";
+char filename[64] = "/home/e516/openpose_raise_hand/json/000000000000_keypoints.json";
 
 /* 
 gcc main.c json.c -lm
@@ -177,7 +177,7 @@ int main(int argc, char** argv){
 	json_char* json;
 	json_value* value;
 	
-	for(file_i = 1;file_i < 999999999999; file_i++){
+	for(file_i = 0;file_i < 999999999999; file_i++){
 		sprintf(filenamestring, "%012lld", file_i);
 		strcpy(filename, prependfilename);
 		strcat(filename, filenamestring);
@@ -213,12 +213,10 @@ int main(int argc, char** argv){
 			if ( fread(file_contents, file_size, 1, fp) != 1 ) {
 				fprintf(stderr, "Unable to read content of %s\n", filename);
 				fclose(fp);
-				free(file_contents);
-				return 1;
 			}
 			fclose(fp);
 			
-			printf("%s\n", file_contents);
+			//printf("%s\n", file_contents);
 			
 			json = (json_char*)file_contents;
 			
@@ -226,28 +224,30 @@ int main(int argc, char** argv){
 			
 			if (value == NULL) {
 				fprintf(stderr, "Unable to parse data\n");
-				free(file_contents);
-				exit(1);
 			}
 			
 			process_value(value, 0, 0);
 			
 			json_value_free(value);
 			free(file_contents);
-			for(int l=0; l<100; l++){
+			for(int l=0; l<num; l++){
 				for(int n=0; n<3; n++){
-					coor_y[l][n] = coor_x[l][n] = 16384;
+					coor_y[l][n] = 16384;
+					coor_x[l][n] = 16384;
 				}
-				lefthand[l] = righthand[l] = 0;
+				lefthand[l] = 0;
+				righthand[l] = 0;
 			}
 			num = -1;
 			num_old = 0;
 			
-			#ifdef _WIN32
+			/*#ifdef _WIN32
 			Sleep(pollingDelay);
 			#else
 			usleep(pollingDelay*1000);
 			#endif
+			*/
+			remove(filename);
 		}
 	}
 
