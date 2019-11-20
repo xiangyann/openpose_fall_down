@@ -137,19 +137,21 @@ static void coory(json_value* value, int x, int y){
 	//YOLO
     //if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
     coor_y[num][y]=value->u.dbl;
-	//printf("==DEBUG== Human[%d], y2=%f, y3=%f, y5=%f, y6=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
+	printf("==DEBUG== Human[%d], y2=%f, y3=%f, y5=%f, y6=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
 	//printf("x2=%f, x3=%f, x5=%f, x6=%f\n",coor_x[num][0],coor_x[num][1],coor_x[num][2],coor_x[num][3]);
-	(coor_y[num][0]>coor_y[num][1])?(righthand[num]=1):(righthand[num]=0);
-	(coor_y[num][2]>coor_y[num][3])?(lefthand[num]=1):(lefthand[num]=0);
+	if(coor_y[num][0]-coor_y[num][1]>0.5)righthand[num]=1;
+	if(coor_y[num][2]-coor_y[num][3]>0.5)lefthand[num]=1;
 	output();
     //printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
 	//printf(", ycoor=%f, y=%d\n",coor_y[num][y],y);
 }
 
 static void output(){
+	if(num==0)return;
 	//DO SOMETHING HERE!!!!!!
 	if(lefthand[num])printf("人類 %d 舉起了他的右手！\n", num);
 	if(righthand[num])printf("人類 %d 舉起了他的左手！\n", num);
+	
 }
 
 static void spit(json_value* value, int x, int y){
@@ -184,7 +186,7 @@ int main(int argc, char** argv){
 		strcat(filename, defaultfilename);
 		//if file not found
 		if ( stat(filename, &filestatus) != 0) {
-			printf("Filename: %s\n", filename);
+			//printf("Filename: %s\n", filename);
 			file_i--;
 			#ifdef _WIN32
 			Sleep(pollingDelay);
@@ -212,7 +214,6 @@ int main(int argc, char** argv){
 			//if unable to read for some reason
 			if ( fread(file_contents, file_size, 1, fp) != 1 ) {
 				fprintf(stderr, "Unable to read content of %s\n", filename);
-				fclose(fp);
 			}
 			fclose(fp);
 			
@@ -230,16 +231,6 @@ int main(int argc, char** argv){
 			
 			json_value_free(value);
 			free(file_contents);
-			for(int l=0; l<num; l++){
-				for(int n=0; n<3; n++){
-					coor_y[l][n] = 16384;
-					coor_x[l][n] = 16384;
-				}
-				lefthand[l] = 0;
-				righthand[l] = 0;
-			}
-			num = -1;
-			num_old = 0;
 			
 			/*#ifdef _WIN32
 			Sleep(pollingDelay);
@@ -248,8 +239,18 @@ int main(int argc, char** argv){
 			#endif
 			*/
 			remove(filename);
-		}
-	}
+			for(int l=0; l<=num; l++){
+				for(int n=0; n<4; n++){
+					coor_y[l][n] = 16384.0;
+					coor_x[l][n] = 16384.0;
+				}
+				lefthand[l] = 0;
+				righthand[l] = 0;
+			}
+			num = -1;
+			num_old = 0;
+				}
+			}
 
 	return 0;
 }
