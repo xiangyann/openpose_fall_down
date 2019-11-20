@@ -11,7 +11,7 @@
 #endif
 
 //dirty hacks for higher than implementation
-double coor_x[100][2]={[0 ... 99][0 ... 3] = 16384}, coor_y[100][2]={[0 ... 99][0 ... 3] = 16384};
+double coor_x[100][2]={[0 ... 99][0 ... 1] = 16384}, coor_y[100][2]={[0 ... 99][0 ... 1] = 16384};
 int fall[100]={[0 ... 99] = 0};
 //implement if needed
 //double coor_x_old[100][4]={0}, coor_y_old[100][4]={0};
@@ -21,7 +21,7 @@ char defaultfilename[16] = "_keypoints.json";
 char prependfilename[36] = "/home/e516/openpose_fall_down/json/";
 char filenamestring[13] = "000000000000";
 char filename[63] = "/home/e516/openpose_fall_down/json/000000000000_keypoints.json";
-
+long long int file_i = 0;
 /* 
 gcc main.c json.c -lm
  */
@@ -135,22 +135,29 @@ static void coorx(json_value* value, int x, int y){
 	///printf("Person[%d] %s xcoor=%f, x=%d",num,part_name,coor_x[num][y],x);
 }
 static void coory(json_value* value, int x, int y){
-	//char* part_name=body_parts(x);
-	//YOLO
-	//if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
 	coor_y[num][y]=value->u.dbl;
-	//printf("==DEBUG== Human[%d], y1=%f, y8=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1]);
-	if(coor_y[num][0]-coor_y[num][1]>0.5)fall[num]=1;
-	//if(coor_y[num][2]-coor_y[num][3]>0.5)lefthand[num]=1;
-	output();
-	//printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
-	//printf(", ycoor=%f, y=%d\n",coor_y[num][y],y);
+	if(coor_x[num][0]==16384 || coor_x[num][1]==16384 || coor_y[num][0]==16384 || coor_y[num][1]==16384){
+		//skip
+		//printf("skip!\n");
+	}else{
+		double slope = ((coor_y[num][1]-coor_y[num][0])/(coor_x[num][1]-coor_x[num][0]));
+		//char* part_name=body_parts(x);
+		//YOLO
+		//if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
+		//printf("==DEBUG== Human[%d], x1=%f, y1=%f, x8=%f, y8=%f",num,coor_x[num][0],coor_y[num][0],coor_x[num][1],coor_y[num][1]);
+		//printf(" x1-x8= %f, y1-y8=%f, Slope = %f\n",(coor_x[num][1]-coor_x[num][0]),(coor_y[num][1]-coor_y[num][0]), slope);
+		if(slope > -1 && slope < 1)fall[num]=1;
+		//if(coor_y[num][2]-coor_y[num][3]>0.5)lefthand[num]=1;
+		output();
+		//printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
+		//printf(", ycoor=%f, y=%d\n",coor_y[num][y],y);
+	}
 }
 
 static void output(){
 	if(num==0)return;
 	//DO SOMETHING HERE!!!!!!
-	if(fall[num])printf("人類 %d 舉起了他的左手！\n", num);
+	if(fall[num])printf("人類 %d 跌倒了！@ %012lld \n", num, file_i);
 	
 }
 
@@ -173,7 +180,6 @@ int main(int argc, char** argv){
 	FILE *fp;
 	struct stat filestatus;
 	int file_size;
-	long long int file_i = 0;
 	char* file_contents;
 	int pollingDelay = 100;
 	json_char* json;
