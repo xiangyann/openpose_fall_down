@@ -137,7 +137,7 @@ static void coory(json_value* value, int x, int y){
 	//YOLO
     //if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
     coor_y[num][y]=value->u.dbl;
-	printf("==DEBUG== Human[%d], y2=%f, y3=%f, y5=%f, y6=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
+	//printf("==DEBUG== Human[%d], y2=%f, y3=%f, y5=%f, y6=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
 	//printf("x2=%f, x3=%f, x5=%f, x6=%f\n",coor_x[num][0],coor_x[num][1],coor_x[num][2],coor_x[num][3]);
 	if(coor_y[num][0]-coor_y[num][1]>0.5)righthand[num]=1;
 	if(coor_y[num][2]-coor_y[num][3]>0.5)lefthand[num]=1;
