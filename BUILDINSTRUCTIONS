@@ -1,1 +1,1 @@
-gcc a.c json.c -lm
+gcc main.c json.c -lm

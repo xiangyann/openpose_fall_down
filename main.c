@@ -18,9 +18,9 @@ int lefthand[100]={[0 ... 99] = 0},righthand[100]={[0 ... 99] = 0}, hand_int[100
 int num = -1;
 int num_old = 0;
 char defaultfilename[16] = "_keypoints.json";
-char prependfilename[37] = "/home/e516/openpose_raise_hand/json/";
+char prependfilename[36] = "/home/e516/openpose_fall_down/json/";
 char filenamestring[13] = "000000000000";
-char filename[64] = "/home/e516/openpose_raise_hand/json/000000000000_keypoints.json";
+char filename[63] = "/home/e516/openpose_fall_down/json/000000000000_keypoints.json";
 
 /* 
 gcc main.c json.c -lm
