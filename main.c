@@ -11,8 +11,8 @@
 #endif
 
 //dirty hacks for higher than implementation
-double coor_x[100][4]={[0 ... 99][0 ... 3] = 16384}, coor_y[100][4]={[0 ... 99][0 ... 3] = 16384}, coor_int[100][4]={[0 ... 99][0 ... 3] = 16384};
-int lefthand[100]={[0 ... 99] = 0},righthand[100]={[0 ... 99] = 0}, hand_int[100]={[0 ... 99] = 0};
+double coor_x[100][2]={[0 ... 99][0 ... 3] = 16384}, coor_y[100][2]={[0 ... 99][0 ... 3] = 16384};
+int fall[100]={[0 ... 99] = 0};
 //implement if needed
 //double coor_x_old[100][4]={0}, coor_y_old[100][4]={0};
 int num = -1;
@@ -69,7 +69,7 @@ static void process_array(json_value* value, int depth)
 static void process_value(json_value* value, int depth, int x)
 {
         int j;
-		char a[100];
+	char a[100];
         if (value == NULL) {
                 return;
         }
@@ -93,12 +93,12 @@ static void process_value(json_value* value, int depth, int x)
                         //printf("double: %f\n", value->u.dbl);
 					if(x==0)num++;
 					//printf("%d",x);
-					if(x/3==2 || x/3==3 || x/3==5 || x/3==6){
+					if(x/3==1 || x/3==8){
 						switch(x/3){
-							case 2:spit(value, x, 0);break;
-							case 3:spit(value, x, 1);break;
-							case 5:spit(value, x, 2);break;
-							case 6:spit(value, x, 3);break;
+							case 1:spit(value, x, 0);break;
+							case 8:spit(value, x, 1);break;
+							//case 5:spit(value, x, 2);break;
+							//case 6:spit(value, x, 3);break;
 							default:break;
 						}
 					}
@@ -117,10 +117,12 @@ static void process_value(json_value* value, int depth, int x)
 }
 char* body_parts(int x){
 	switch(x/3){
+		case 1:return "Neck";
 		case 2:return "RShoulder";
 		case 3:return "RElbow";
 		case 5:return "LShoulder";
 		case 6:return "LElbow";
+		case 8:return "MidHip";
 		default:return "Unimplemented";
 	}
 }
@@ -135,22 +137,20 @@ static void coorx(json_value* value, int x, int y){
 static void coory(json_value* value, int x, int y){
 	//char* part_name=body_parts(x);
 	//YOLO
-    //if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
-    coor_y[num][y]=value->u.dbl;
-	//printf("==DEBUG== Human[%d], y2=%f, y3=%f, y5=%f, y6=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1],coor_y[num][2],coor_y[num][3]);
-	//printf("x2=%f, x3=%f, x5=%f, x6=%f\n",coor_x[num][0],coor_x[num][1],coor_x[num][2],coor_x[num][3]);
-	if(coor_y[num][0]-coor_y[num][1]>0.5)righthand[num]=1;
-	if(coor_y[num][2]-coor_y[num][3]>0.5)lefthand[num]=1;
+	//if(coor_y[num][y]!=0)coor_y_old[num][y]=coor_y[num][y];
+	coor_y[num][y]=value->u.dbl;
+	//printf("==DEBUG== Human[%d], y1=%f, y8=%f ==DEBUG==\n",num,coor_y[num][0],coor_y[num][1]);
+	if(coor_y[num][0]-coor_y[num][1]>0.5)fall[num]=1;
+	//if(coor_y[num][2]-coor_y[num][3]>0.5)lefthand[num]=1;
 	output();
-    //printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
+	//printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_y[num][y]);
 	//printf(", ycoor=%f, y=%d\n",coor_y[num][y],y);
 }
 
 static void output(){
 	if(num==0)return;
 	//DO SOMETHING HERE!!!!!!
-	if(lefthand[num])printf("人類 %d 舉起了他的右手！\n", num);
-	if(righthand[num])printf("人類 %d 舉起了他的左手！\n", num);
+	if(fall[num])printf("人類 %d 舉起了他的左手！\n", num);
 	
 }
 
@@ -240,12 +240,12 @@ int main(int argc, char** argv){
 			*/
 			remove(filename);
 			for(int l=0; l<=num; l++){
-				for(int n=0; n<4; n++){
+				for(int n=0; n<2; n++){
 					coor_y[l][n] = 16384.0;
 					coor_x[l][n] = 16384.0;
 				}
-				lefthand[l] = 0;
-				righthand[l] = 0;
+				//lefthand[l] = 0;
+				fall[l] = 0;
 			}
 			num = -1;
 			num_old = 0;
