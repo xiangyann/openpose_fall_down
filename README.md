@@ -1,24 +1,22 @@
 JSON parser from: https://github.com/udp/json-parser
 openpose from: https://github.com/CMU-Perceptual-Computing-Lab/openpose
 
-編譯/Building
+Compiling
 -
 `gcc main.c json.c -lm`
 
-使用方法/Usage
+Usage
 -
-自行編譯openpose到家目錄
-把 test 移動或複製到 openpose 底下<br >
-複製 run 底下的內容<br >
-cd 到 openpose<br >
-貼上指令<br >
+Compile openpose to home dir<br >
+Copy test to the folder named openpose<br >
+Modify main.c to the correct folder pathname<br>
+Modify and copy the contents under "run" <br >
+cd to openpose<br >
+Paste the command<br >
 
-待做事項/TODO
+TODO
 -
-~~1. 讀檔案~~<br >
-~~2. 連續讀檔案後刪除~~<br >
-3. shell script 自動化<br >
-4. 檔案事後cleanup<br >
-5. 判別不同姿勢<br >
-6. 連接功能<br >
-7. 移除hardcoded path
+1. Bug checks<br >
+2. Check caveats<br >
+3. Remove hardcoded path<br >
+4. Improvise algorithm, maybe replace entire slope method
