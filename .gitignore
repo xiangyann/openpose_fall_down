@@ -6,6 +6,7 @@ libjsonparser.a
 libjsonparser.so
 test_json
 a.out
+json.h.gch
 ### C ###
 # Prerequisites
 *.d

@@ -14,6 +14,7 @@
 //dirty hacks for higher than implementation
 double coor_x[100][2]={[0 ... 99][0 ... 1] = 16384}, coor_y[100][2]={[0 ... 99][0 ... 1] = 16384};
 int fall[100]={[0 ... 99] = 0};
+int fall_save = 0;
 //implement if needed
 //double coor_x_old[100][4]={0}, coor_y_old[100][4]={0};
 int num = -1;
@@ -137,6 +138,7 @@ static void coorx(json_value* value, int x, int y){
 	//printf("x: %d, coor_x[%d][%d] = %f\n",x/3,num,y,coor_x[num][y]);
 	///printf("Person[%d] %s xcoor=%f, x=%d",num,part_name,coor_x[num][y],x);
 }
+
 static void coory(json_value* value, int x, int y){
 	coor_y[num][y]=value->u.dbl;
 	if(coor_x[num][0]==16384 || coor_x[num][1]==16384 || coor_y[num][0]==16384 || coor_y[num][1]==16384){
@@ -168,7 +170,13 @@ static void output(){
 		//old_result = result;
 		if(fall[num]){
 			//printf("time: %ld, %ld  ",old_result,result);
-			printf("人類 %d 跌倒了！@ %s \n", num, ctime(&result));
+			if(fall_save==6){
+				printf("老人家 %d 跌倒後沒有爬起來！@ %s \n", num, ctime(&result));
+				fall_save = 0;
+			}
+			else{
+				fall_save++;
+			}
 		}
 	//}
 	
@@ -194,7 +202,7 @@ int main(int argc, char** argv){
 	struct stat filestatus;
 	int file_size;
 	char* file_contents;
-	int pollingDelay = 100;
+	int pollingDelay = 1000000;
 	json_char* json;
 	json_value* value;
 	
