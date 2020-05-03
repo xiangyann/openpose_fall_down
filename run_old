@@ -1,0 +1,1 @@
+./test "./build/examples/openpose/openpose.bin --write_json /home/e516/openpose_fall_down/json >/dev/null 2>/dev/null" "/home/e516/openpose_fall_down/a.out" 2>/dev/null

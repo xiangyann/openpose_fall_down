@@ -170,7 +170,8 @@ static void output(){
 		//old_result = result;
 		if(fall[num]){
 			//printf("time: %ld, %ld  ",old_result,result);
-			if(fall_save==6){
+			//printf("fall_save = %d, time = %s \n", fall_save, ctime(&result));
+			if(fall_save==60){
 				printf("老人家 %d 跌倒後沒有爬起來！@ %s \n", num, ctime(&result));
 				fall_save = 0;
 			}
@@ -202,7 +203,7 @@ int main(int argc, char** argv){
 	struct stat filestatus;
 	int file_size;
 	char* file_contents;
-	int pollingDelay = 1000000;
+	int pollingDelay = 1000;
 	json_char* json;
 	json_value* value;
 	
